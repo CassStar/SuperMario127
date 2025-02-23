@@ -47,8 +47,9 @@ func _physics_process(delta):
 		timer_display.text = LevelInfo.generate_time_string(Singleton.CurrentLevelData.time_score)
 		return
 	
+	var player = get_node("/root").get_node("Player").get_node(get_node("/root").get_node("Player").character)
 	# justt in case the timer is set again right after running out
-	if not is_counting and time > 0:
+	if not is_counting and time > 0 && !player.shine_cutscene:
 		cancel_time_over()
 	
 	if is_counting:
@@ -108,10 +109,10 @@ func kill_player():
 	var player = get_node("/root").get_node("Player").get_node(get_node("/root").get_node("Player").character)
 	var player2 = get_node("/root").get_node("Player").get_node_or_null(get_node("/root").get_node("Player").character2)
 	if is_instance_valid(player):
-		if !player.dead and player.controllable:
+		if !player.dead and !player.shine_cutscene:
 			player.kill("timer")
 	if is_instance_valid(player2):
-		if !player2.dead and player2.controllable:
+		if !player2.dead and !player2.shine_cutscene:
 			player2.kill("timer")
 
 func set_label(new_text: String):
