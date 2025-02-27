@@ -374,6 +374,25 @@ func update_selected_object(mouse_pos : Vector2) -> void:
 					
 
 func _process(delta : float) -> void:
+	
+	var objects = shared.get_objects_node().get_children()
+	
+	for object in objects:
+		
+		var scale: Vector2 = object.scale
+		var super_small_x:bool = scale[0] < 0.0005 && scale[0] > -0.0005
+		var super_small_y:bool = scale[1] < 0.0005 && scale[1] > -0.0005
+		
+		if (super_small_x || super_small_y):
+			
+			if (object_settings.object != null):
+				
+				object_settings.delete_pressed()
+			
+			else:
+			
+				shared.destroy_object(object,true)
+	
 	var visible_child_count := 0
 	for i in $UI.get_children():
 		if i is NinePatchRect:

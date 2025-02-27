@@ -60,4 +60,6 @@ func get_value():
 	return property_type.get_value()
 
 func update_value(value):
-	object.set_property(key, value, true)
+	
+	if (is_instance_valid(object)):
+		object.set_property(key, value, true)
