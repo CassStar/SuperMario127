@@ -297,7 +297,7 @@ func is_mouse_over_window()-> bool:
 	
 	for window in windows:
 		
-		if (window.hovered):
+		if (window.hovered and window.visible):
 			return true
 	
 	return false
@@ -339,7 +339,7 @@ func is_mouse_over_area() -> bool:
 	return false
 
 func parts_input_handler(event, object):
-	if is_mouse_over_window() or is_mouse_over_area():
+	if mode != 1 or is_mouse_over_window() or is_mouse_over_area():
 		return
 	
 	if event is InputEventMouseButton and event.is_pressed() and hovered:

@@ -38,9 +38,9 @@ func to_back_pressed():
 	
 func to_front_pressed():
 	shared_node.move_object_to_front(object.get_ref())
-	
 func edit_preview_object(key, value):
-	if object != null and object.get_ref() and is_instance_valid(preview_object):
+	if object != null and object.get_ref() and is_instance_valid(preview_object) and\
+		object.get_ref().name == preview_object.name:
 		if key != "position" and key != "enabled":
 			if key != "scale":
 				preview_object[key] = value
