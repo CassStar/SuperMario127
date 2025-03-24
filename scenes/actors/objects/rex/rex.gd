@@ -231,6 +231,7 @@ func _physics_process(delta:float)->void :
 	water_scale.x = 0.95 if water_detector.get_overlapping_areas().size() > 0 else 1
 	water_scale.y = 0.25 if water_detector.get_overlapping_areas().size() > 0 else 1
 	if mode != 1 and enabled:
+		Ice.check_is_sliding(self,right_check)
 		sprite.animation = "walking" if not squish else "walking_squished"
 		update_eyes()
 	
@@ -455,5 +456,13 @@ func physics_process_normal(delta, is_in_platform: bool):
 		
 	if !was_stomped and knockback_affect:
 		snap = Vector2.ZERO
+	
+	if (is_sliding):
+		if (abs(velocity.x) < squished_speed * 2 and abs(velocity.x) > run_speed):
+			velocity.x += sign(velocity.x) * 7
+		elif (abs(velocity.x) > speed):
+			velocity.x += sign(velocity.x) * 2
+		elif (abs(velocity.x) > speed / 2):
+			velocity.x += sign(velocity.x) * 1
 	
 	velocity = kinematic_body.move_and_slide_with_snap(velocity, snap, Vector2.UP, true, 4, deg2rad(46))

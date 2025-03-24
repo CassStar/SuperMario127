@@ -58,11 +58,17 @@ func _update(delta):
 	if character.is_grounded() and move_direction != 0:
 		temp_speed += 2
 		stop_buffer = 0.5
-		character.velocity.x = lerp(character.velocity.x, temp_speed * move_direction, delta * 2)
+		if (!character.is_sliding):
+			character.velocity.x = lerp(character.velocity.x, temp_speed * move_direction, delta * 2)
+		else:
+			character.velocity.x = lerp(character.velocity.x, temp_speed * move_direction,delta/2)
 	else:
 		stop_buffer -= delta
 		temp_speed = clamp(temp_speed - 2, move_speed, move_speed * 10)
-		character.velocity.x = lerp(character.velocity.x, 0, delta * 2)
+		if (!character.is_sliding):
+			character.velocity.x = lerp(character.velocity.x, 0, delta * 2)
+		else:
+			character.velocity.x = lerp(character.velocity.x, 0,delta/2)
 		
 	if abs(normal.x) <= 0.2:
 		if abs(character.velocity.x) < 20:

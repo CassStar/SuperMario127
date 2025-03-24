@@ -231,3 +231,9 @@ rect = Rect2( -300, -300, 600, 600 )
 pause_particles = false
 process_parent = true
 physics_process_parent = true
+
+[node name="GroundCheck" type="RayCast2D" parent="."]
+position = Vector2( 0.5, 0 )
+enabled = true
+cast_to = Vector2( 0, 26 )
+collision_mask = 65617

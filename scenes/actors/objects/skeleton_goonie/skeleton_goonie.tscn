@@ -331,3 +331,9 @@ shape = SubResource( 34 )
 [node name="EditorCircle" type="CollisionShape2D" parent="." index="7"]
 position = Vector2( -2, 1 )
 shape = SubResource( 41 )
+
+[node name="GroundCheck" type="RayCast2D" parent="." index="8"]
+position = Vector2( 0.5, 0 )
+enabled = true
+cast_to = Vector2( 0, 26 )
+collision_mask = 65617

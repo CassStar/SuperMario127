@@ -1,0 +1,50 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://scenes/actors/objects/ice/ice.gd" type="Script" id=1]
+[ext_resource path="res://scenes/actors/objects/ice/recolorable_texture.png" type="Texture" id=2]
+[ext_resource path="res://scenes/actors/objects/ice/ice.png" type="Texture" id=5]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 21, 18 )
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 21, 18 )
+
+[node name="Ice" type="Node2D"]
+script = ExtResource( 1 )
+normal_texture = ExtResource( 5 )
+recolorable_texture = ExtResource( 2 )
+
+[node name="Sprite" type="NinePatchRect" parent="."]
+margin_left = -21.0
+margin_top = -18.0
+margin_right = 21.0
+margin_bottom = 18.0
+texture = ExtResource( 5 )
+region_rect = Rect2( 0, 0, 42, 36 )
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="Sprite2" type="NinePatchRect" parent="Sprite"]
+margin_left = -0.0355606
+margin_top = -0.441521
+margin_right = 41.9644
+margin_bottom = 35.5585
+region_rect = Rect2( 0, 0, 42, 36 )
+patch_margin_left = 8
+patch_margin_right = 7
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+shape = SubResource( 1 )
+
+[node name="Area2D" type="Area2D" parent="StaticBody2D"]
+collision_layer = 16
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D/Area2D"]
+shape = SubResource( 2 )

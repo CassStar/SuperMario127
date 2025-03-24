@@ -29,11 +29,21 @@ func _start(_delta : float) -> void:
 	var sound_player : Node = character.sound_player # Sounds is apparently a node that gets added at runtime??
 	if dive_buffer > 0 and character.dive_cooldown == 0:
 		if character.character == 0:
-			character.velocity.x = character.velocity.x - (character.velocity.x - (dive_power.x * character.facing_direction)) / 5
+			var changed_velocity = (character.velocity.x - (dive_power.x * character.facing_direction)) / 5
+			var non_slip_dive = (!character.is_sliding || abs(character.velocity.x) > 100) && abs(character.velocity.x-changed_velocity) > 100
+			if (non_slip_dive):
+				character.velocity.x = character.velocity.x - changed_velocity
+			else:
+				character.velocity.x = character.velocity.x - (character.velocity.x - (dive_power.x * character.facing_direction)) / 25
 			character.velocity.y += dive_power.y
 		else:
-			character.velocity.x = character.velocity.x - (character.velocity.x - (dive_power_luigi.x * \
-					character.facing_direction)) / 5
+			var changed_velocity = (character.velocity.x - (dive_power_luigi.x * character.facing_direction)) / 5
+			var non_slip_dive = (!character.is_sliding || abs(character.velocity.x) > 100) && abs(character.velocity.x-changed_velocity) > 100
+			if (non_slip_dive):
+				character.velocity.x = character.velocity.x - changed_velocity
+			else:
+				character.velocity.x = character.velocity.x - (character.velocity.x - (dive_power_luigi.x * \
+					character.facing_direction)) / 25
 			character.velocity.y += dive_power_luigi.y
 		sound_player.play_dive_sound()
 	character.position.y += 4

@@ -10,6 +10,7 @@ onready var attack_area: = $Body/AttackArea
 onready var hit_sound: = $Body/Hit
 onready var poof_sfx: = $Body/Disappear
 onready var poof: = $Body/Poof
+onready var ground_check = $GroundCheck
 
 var color := Color.green
 
@@ -131,6 +132,7 @@ func _physics_process(delta):
 	if not (mode != 1 and enabled):
 		return
 	
+	Ice.check_is_sliding(self,ground_check)
 	if (not hit):
 		sprite.playing = true
 		
@@ -205,7 +207,14 @@ func _physics_process(delta):
 				facing_direction = sign(body.global_position.x - character.global_position.x)
 				sprite.scale.x = facing_direction
 			
-			if (wander):
+			if (wander and is_sliding):
+				if (abs(velocity.x) < walk_spd / 1.5 * facing_direction):
+					velocity.x -= 0.03*facing_direction
+				elif (abs(velocity.x) < walk_spd * facing_direction):
+					velocity.x -= 0.1*facing_direction
+				else:
+					velocity.x -= 0.5*facing_direction
+			elif (wander):
 				velocity.x = lerp(velocity.x, walk_spd * -facing_direction, 0.075)
 		else:
 			velocity.x = 0
@@ -213,7 +222,8 @@ func _physics_process(delta):
 		hide_timer -= delta
 		
 		if body.is_on_floor():
-			velocity.x -= sign(velocity.x)*5
+			if (!is_sliding):
+				velocity.x -= sign(velocity.x)*5
 		
 		sprite.rotation_degrees += (velocity.x / 15)
 		velocity.y += (gravity * gravit_scale)

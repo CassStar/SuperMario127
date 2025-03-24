@@ -9,6 +9,7 @@ onready var shape = $KinematicBody2D/Area2D/CollisionShape2D
 onready var water_shape = $KinematicBody2D/WaterDetector/CollisionShape2D
 onready var visibility_enabler = $VisibilityEnabler2D
 onready var bottom_pos = $KinematicBody2D/BottomPos
+onready var grounded_check = $GroundCheck
 
 export var coins : int = 1
 
@@ -119,7 +120,7 @@ func _physics_process(delta):
 	# Everything else here is irrelevant for edit mode
 	if mode == 1 or !do_physics() or !visibility_enabler.is_on_screen():
 		return
-	
+	Ice.check_is_sliding(self,grounded_check)
 	velocity = calc_physics(false, delta)
 	
 	kinematic_body.move_and_slide_with_snap(velocity, Vector2(0, 0), Vector2.UP, false, 8, deg2rad(56))
@@ -158,8 +159,12 @@ func calc_physics(interp : bool, delta) -> Vector2:
 		gravity_scale = 1
 	
 	#friction calculations
-	new_velocity.x -= sign(new_velocity.x)*frictin_coeff * interp_scale
-	
+	var velocity_change: float
+	if (is_sliding):
+		velocity_change = sign(new_velocity.x)*frictin_coeff * interp_scale/2
+	else:
+		velocity_change = sign(new_velocity.x)*frictin_coeff * interp_scale
+	new_velocity.x -= velocity_change
 	#gravity calculations
 	
 	if velocity.y < 600:

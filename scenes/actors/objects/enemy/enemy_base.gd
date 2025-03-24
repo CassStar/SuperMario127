@@ -28,6 +28,10 @@ var enabled: bool
 var snap_enabled: bool = true
 # whether to emit particles on startup
 var spawn_effect: bool = true
+var is_sliding: bool
+var last_facing_direction: int
+var speed_buildup: float = 1
+var max_speed: float = 500
 
 # water and lava
 onready var liquids_detector: Area2D = $LiquidsDetector
@@ -43,6 +47,7 @@ onready var dialogue_detector: Area2D = $AnimatedSprite/DialogueDetector
 onready var spawn_particles: Particles2D = $SpawnParticles
 #bottom pos so platforms don't explode
 onready var bottom_pos: Node2D = $BottomPos
+onready var ground_check: RayCast2D = $GroundCheck
 
 # what the enemys currently doing
 var state: EnemyState
@@ -83,6 +88,7 @@ func _ready():
 func _physics_process(delta):
 	if not enabled: return
 	
+	Ice.check_is_sliding(self,ground_check)
 	sprite.flip_h = (facing_direction > 0)
 	
 	var working_snap_vector: Vector2 = SNAP_VECTOR if snap_enabled else Vector2.ZERO
@@ -112,13 +118,36 @@ func _physics_process(delta):
 	
 	# counteract slope slowdown/speedup
 	if is_on_floor() and not is_zero_approx(floor_normal.y):
+		var velocity_change: float
 		# anti-slowdown
 		if sign(floor_normal.x) != sign(working_velocity.x):
-			working_velocity.x /= abs(floor_normal.y)
+			velocity_change = abs(floor_normal.y) - int(is_sliding)*sign(floor_normal.y)
+			velocity_change = .9 if is_zero_approx(velocity_change) else velocity_change
+			working_velocity.x /= velocity_change
 		# anti-speedup
 		else:
-			working_velocity.x *= abs(floor_normal.y)
+			velocity_change = abs(floor_normal.y) + int(is_sliding)*sign(floor_normal.y)
+			velocity_change = .9 if is_zero_approx(velocity_change) else velocity_change
+			working_velocity.x *= velocity_change
+	if (is_sliding):
+		
+		# Setting a minimum speed if they aren't stationary
+		if (abs(working_velocity.x) < 9 and not working_velocity.x == 0):
+			working_velocity.x = 9*facing_direction
+		
+		# Prevents weird hyperspeed bug, don't ask me how it happens I don't know
+		clamp(working_velocity.x,-max_speed,max_speed)
+		
+		# Enemy slowly builds up speed by going in the same direction without stopping
+		if (facing_direction == last_facing_direction and working_velocity.x != 0):
+			speed_buildup += .01
+		else:
+			speed_buildup = 1
+		
+		working_velocity.x *= speed_buildup
 	
 	velocity.y = move_and_slide_with_snap(working_velocity, 
 		working_snap_vector if velocity.y >= 0 else Vector2.ZERO, 
 		UP_DIR, true, 4, FLOOR_MAX_ANGLE).y
+	
+	last_facing_direction = int(facing_direction)

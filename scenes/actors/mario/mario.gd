@@ -122,6 +122,7 @@ export var acceleration := 16.0
 export var deceleration := 30.0
 export var aerial_acceleration := 16.0
 export var friction := 27.0
+export var ice_friction: float = 2
 export var aerial_friction := 2.3
 export var max_aerial_velocity := 640
 export var max_frictionless_slide_velocity : float = 450
@@ -141,6 +142,7 @@ export var rotating := true
 export var swimming := false
 export var spawn_pos := Vector2(0, 0)
 export var gravity : float
+export var is_sliding: bool = false
 
 export var disable_movement := false
 export var disable_turning := false
@@ -786,9 +788,11 @@ func _physics_process(delta: float) -> void:
 		if is_on_floor():
 			velocity.y = 0 # so velocity doesn't become incredibly high when not controllable
 	
+	Ice.check_is_sliding(self,ground_check)
+	
 	# Horizontal physics
 	if move_direction != 0 and controllable:
-		if is_grounded():
+		if (is_grounded() && !is_sliding):
 			# Accelerate/decelerate
 			if velocity.x * move_direction < 0: #why. just why. you already have the move direction, dingus.
 				velocity.x += deceleration * move_direction
@@ -796,6 +800,14 @@ func _physics_process(delta: float) -> void:
 				velocity.x += acceleration * move_direction
 			elif velocity.x * move_direction > move_speed:
 				velocity.x -= 3.5 * move_direction
+			facing_direction = move_direction
+		elif (is_sliding):
+			# Moving right
+			if (move_direction > 0 && velocity.x < move_speed*1.5):
+				velocity.x += acceleration/4
+			# Moving left
+			elif (move_direction < 0 && velocity.x > -move_speed*1.5):
+				velocity.x -= acceleration/4
 			facing_direction = move_direction
 		else:
 			if velocity.x * move_direction < move_speed:
@@ -805,6 +817,18 @@ func _physics_process(delta: float) -> void:
 			if !disable_turning:
 				facing_direction = move_direction
 				pass
+	elif (is_sliding):
+		
+		if (velocity.x != 0):
+			if (abs(velocity.x) > 1.5):
+				velocity.x -= sign(velocity.x)*ice_friction
+			else:
+				velocity.x = 0
+		if (velocity.y != 0):
+			if (abs(velocity.y) > 1.5):
+				velocity.y -= sign(velocity.y)*ice_friction
+			else:
+				velocity.y = 0
 	elif !disable_friction:
 		if abs(velocity.x) > 0:
 			if abs(velocity.x) > 15:

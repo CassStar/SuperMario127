@@ -12,6 +12,7 @@ var level_object = null
 var hovered := false
 
 var enabled := true
+var is_sliding := false
 var preview_position := Vector2(72, 92)
 var palette := 0
 var palettes := 0

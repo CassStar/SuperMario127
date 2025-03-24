@@ -146,6 +146,12 @@ local_coords = false
 process_material = SubResource( 36 )
 texture = ExtResource( 4 )
 
+[node name="GroundCheck" type="RayCast2D" parent="."]
+position = Vector2( 0.5, 0 )
+enabled = true
+cast_to = Vector2( 0, 26 )
+collision_mask = 65617
+
 [connection signal="body_entered" from="Damage/Crush" to="Damage" method="crush_body_entered"]
 [connection signal="body_entered" from="Damage/Stomp" to="Damage" method="stomp_body_entered"]
 [connection signal="area_entered" from="Damage/Attack" to="Damage" method="attack_area_entered"]

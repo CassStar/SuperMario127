@@ -108,7 +108,7 @@ func exploded(explosion_pos : Vector2):
 	if enabled:
 		hit = true
 		snap = Vector2(0, 0)
-		velocity.x = (kinematic_body.global_position - explosion_pos).normalized().x * 275
+		velocity.x = (kinematic_body.global_position - explosion_pos).normalized().x * 275 / (int(is_sliding)*5+1)
 		velocity.y = -275
 		position.y -= 4
 		explode_timer = 4
@@ -117,7 +117,7 @@ func exploded(explosion_pos : Vector2):
 func steely_hit(hit_pos : Vector2):
 	hit = true
 	snap = Vector2(0, 0)
-	velocity.x = (kinematic_body.global_position - hit_pos).normalized().x * 275
+	velocity.x = (kinematic_body.global_position - hit_pos).normalized().x * 275 * (int(is_sliding)*0+1)
 	velocity.y = -275
 	position.y -= 4
 	explode_timer = 4
@@ -137,6 +137,7 @@ func _physics_process(delta):
 	if mode == 1 or !enabled:
 		return
 	
+	Ice.check_is_sliding(self,grounded_check)
 	var is_in_platform = false
 	var platform_collision_enabled = false
 	for platform_body in platform_detector.get_overlapping_areas():
@@ -216,7 +217,10 @@ func _physics_process(delta):
 		if character == null:
 			if walk_wait > 0:
 				sprite.animation = "default"
-				velocity.x = lerp(velocity.x, 0, fps_util.PHYSICS_DELTA * accel)
+				if (!is_sliding):
+					velocity.x = lerp(velocity.x, 0, fps_util.PHYSICS_DELTA * accel)
+				else:
+					velocity.x = lerp(velocity.x, 0, fps_util.PHYSICS_DELTA / accel)
 				walk_wait -= delta
 				if walk_wait <= 0:
 					walk_wait = 0
@@ -224,7 +228,10 @@ func _physics_process(delta):
 					facing_direction = -facing_direction if int(time_alive * 10) % 2 == 0 else facing_direction
 			if walk_timer > 0:
 				sprite.animation = "walking"
-				velocity.x = lerp(velocity.x, facing_direction * passive_speed, fps_util.PHYSICS_DELTA * accel)
+				if (!is_sliding):
+					velocity.x = lerp(velocity.x, facing_direction * passive_speed, fps_util.PHYSICS_DELTA * accel)
+				else:
+					velocity.x = lerp(velocity.x, facing_direction * passive_speed, fps_util.PHYSICS_DELTA)
 				walk_timer -= delta
 				if walk_timer <= 0:
 					walk_timer = 0
@@ -249,7 +256,15 @@ func _physics_process(delta):
 					create_coin()
 			if !dead and !hit:
 				facing_direction = 1 if (character.global_position.x > kinematic_body.global_position.x) else -1
-				velocity.x = lerp(velocity.x, facing_direction * run_speed, fps_util.PHYSICS_DELTA * accel)
+				if (!is_sliding):
+					velocity.x = lerp(velocity.x, facing_direction * run_speed, fps_util.PHYSICS_DELTA * accel)
+				else:
+					# Moving right
+					if (facing_direction > 0 && velocity.x < run_speed*1.5):
+						velocity.x += accel/2
+					# Moving left
+					elif (facing_direction < 0 && velocity.x > -run_speed*1.5):
+						velocity.x -= accel/2
 				fuse.visible = true
 				sprite.animation = "walking"
 				sprite.speed_scale = lerp(sprite.speed_scale, run_speed / passive_speed, fps_util.PHYSICS_DELTA * accel)

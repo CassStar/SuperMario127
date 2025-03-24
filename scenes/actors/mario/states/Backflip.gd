@@ -35,7 +35,8 @@ func _start(_delta):
 	right_collision.disabled = false
 	dive_collision.disabled = true
 	dive_ground_collision.disabled = true
-	character.velocity.x /= 2
+	if (!character.is_sliding):
+		character.velocity.x /= 2
 	character.velocity.x += (backflip_power.x / 1.5) * -character.facing_direction
 	character.velocity.y = -backflip_power.y
 	character.position.x -= 2 * character.facing_direction

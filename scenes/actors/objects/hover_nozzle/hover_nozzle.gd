@@ -5,6 +5,7 @@ onready var collision_shape = $KinematicBody2D/CollisionShape2D
 onready var area = $KinematicBody2D/Area2D
 onready var area_collision = $KinematicBody2D/Area2D/CollisionShape2D
 onready var sound = $AudioStreamPlayer
+onready var ground_check = $GroundCheck
 
 var velocity := Vector2(0, 0)
 var nozzle_type = "HoverNozzle"
@@ -48,10 +49,21 @@ func _process(delta):
 			
 func _physics_process(delta):
 	if mode != 1 and run_physics:
+		Ice.check_is_sliding(self,ground_check)
 		if velocity.y < 600:
 			velocity.y += gravity * gravity_scale * 2
 		
 		if kinematic_body.is_on_floor():
 			velocity.y = 0
+		
+		velocity.x /= 1.005
+		
+		if (is_sliding):
+			if (abs(velocity.x) > 100):
+				velocity.x += 20*sign(velocity.x)
+			elif (abs(velocity.x) > 50):
+				velocity.x += 10*sign(velocity.x)
+			elif (abs(velocity.x) > 10):
+				velocity.x += 2*sign(velocity.x)
 		
 		kinematic_body.move_and_slide_with_snap(velocity, Vector2(0, 8), Vector2.UP, true)

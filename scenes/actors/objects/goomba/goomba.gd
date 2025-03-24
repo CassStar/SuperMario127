@@ -180,6 +180,7 @@ func _physics_process(delta:float)->void :
 	time_alive += delta
 	
 	if mode != 1 and enabled and loaded:
+		Ice.check_is_sliding(self,pit_check)
 		var is_in_platform: = false
 		var platform_collision_enabled: = false
 		for platform_body in platform_detector.get_overlapping_areas():
@@ -209,7 +210,10 @@ func physics_process_normal(delta:float, is_in_platform:bool)->void :
 		
 		if walk_wait > 0:
 			sprite.animation = "default"
-			velocity.x = lerp(velocity.x, 0, fps_util.PHYSICS_DELTA * accel)
+			if (!is_sliding):
+				velocity.x = lerp(velocity.x, 0, fps_util.PHYSICS_DELTA * accel)
+			else:
+				velocity.x = lerp(velocity.x, 0, fps_util.PHYSICS_DELTA / accel)
 			walk_wait -= delta
 			if walk_wait <= 0:
 				walk_wait = 0
@@ -217,7 +221,10 @@ func physics_process_normal(delta:float, is_in_platform:bool)->void :
 				facing_direction *= - 1 if int(time_alive * 10) % 2 == 0 else 1
 		if walk_timer > 0:
 			sprite.animation = "walking"
-			velocity.x = lerp(velocity.x, facing_direction * speed, fps_util.PHYSICS_DELTA * accel)
+			if (!is_sliding):
+				velocity.x = lerp(velocity.x, facing_direction * speed, fps_util.PHYSICS_DELTA * accel)
+			else:
+				velocity.x = lerp(velocity.x, facing_direction * speed, fps_util.PHYSICS_DELTA)
 			walk_timer -= delta
 			if walk_timer <= 0:
 				walk_timer = 0
@@ -229,7 +236,15 @@ func physics_process_normal(delta:float, is_in_platform:bool)->void :
 		
 		
 		facing_direction = sign(character.global_position.x - kinematic_body.global_position.x)
-		velocity.x = lerp(velocity.x, facing_direction * run_speed, fps_util.PHYSICS_DELTA * accel)
+		if (!is_sliding):
+			velocity.x = lerp(velocity.x, facing_direction * run_speed, fps_util.PHYSICS_DELTA * accel)
+		else:
+			# Moving right
+			if (facing_direction > 0 && velocity.x < run_speed*1.5):
+				velocity.x += accel/2
+			# Moving left
+			elif (facing_direction < 0 && velocity.x > -run_speed*1.5):
+				velocity.x -= accel/2
 	
 	sprite.flip_h = true if facing_direction == 1 else false
 	
@@ -345,5 +360,13 @@ func physics_process_hit(delta:float, is_in_platform:bool)->void :
 		
 		velocity.y += gravity * gravity_scale
 		velocity.y += gravity * gravity_scale
+		
+		if (is_sliding):
+			if (abs(velocity.x) < 225 and abs(velocity.x) > 150):
+				velocity.x += sign(velocity.x)*6
+			elif (abs(velocity.x) > 100):
+				velocity.x += sign(velocity.x)*2
+			elif (abs(velocity.x) > 50):
+				velocity.x += sign(velocity.x)*1
 		
 		velocity = kinematic_body.move_and_slide_with_snap(velocity, snap, Vector2.UP, true, 4, deg2rad(46))

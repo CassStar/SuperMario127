@@ -37,6 +37,7 @@ var broken := false
 var fade_away := false
 var break_timer := 0.0
 var time_alive := 0.0
+var max_velocity := 1000.0
 
 func is_grounded():
 	var check = grounded_check
@@ -88,6 +89,7 @@ func create_coin(): #creates a coin
 	get_parent().create_object(object, false) #finishes the object creation
 
 func _physics_process(delta):
+	Ice.check_is_sliding(self,grounded_check)
 	time_alive += delta
 	if !broken:
 		if water_detector.get_overlapping_areas().size() > 0:
@@ -161,7 +163,15 @@ func _physics_process(delta):
 			
 		if check.is_colliding():
 			velocity.x = lerp(velocity.x, 0, delta / 4)
-	
+		
+		if (is_sliding):
+			if (abs(velocity.x) < 100 and abs(velocity.x) > 5):
+				velocity.x /= 1.05
+				
+			elif (abs(velocity.x) > 200):
+				velocity.x += sign(velocity.x)*4
+				velocity.x = clamp(velocity.x,-max_velocity,max_velocity)
+		
 		rotation = 0
 		velocity = body.move_and_slide(velocity)
 		

@@ -1,4 +1,4 @@
-[gd_scene load_steps=1680 format=2]
+[gd_scene load_steps=1682 format=2]
 
 [ext_resource path="res://scenes/editor/bounds_control_button.gd" type="Script" id=1]
 [ext_resource path="res://scenes/shared/shared.tscn" type="PackedScene" id=2]
@@ -1644,6 +1644,8 @@
 [ext_resource path="res://scenes/actors/objects/flower_bush/palettes/6_icon.png" type="Texture" id=1642]
 [ext_resource path="res://scenes/actors/objects/fg_hider/icon.png" type="Texture" id=1643]
 [ext_resource path="res://scenes/editor/Bottom.gd" type="Script" id=1644]
+[ext_resource path="res://scenes/actors/objects/ice/ice.png" type="Texture" id=1645]
+[ext_resource path="res://scenes/actors/objects/ice/icon.png" type="Texture" id=1646]
 
 [sub_resource type="StreamTexture" id=1]
 load_path = "res://.import/icon.png-b79c93c9218fd28768c5a71f04f70e98.stex"
@@ -4014,6 +4016,16 @@ palette_icons = [ ExtResource( 221 ), ExtResource( 890 ), ExtResource( 891 ), Ex
 palette_previews = [ ExtResource( 220 ), ExtResource( 894 ), ExtResource( 901 ), ExtResource( 892 ), ExtResource( 900 ), ExtResource( 895 ), ExtResource( 898 ), ExtResource( 889 ) ]
 icon = ExtResource( 221 )
 preview = ExtResource( 220 )
+
+[node name="Ice" type="Node" parent="PlaceableItems/SnowGroup"]
+script = ExtResource( 24 )
+object_id = 146
+is_object = true
+object_center = Vector2( 32, 0 )
+tile_mode_offset = Vector2( 0, -32 )
+tile_mode_step = 64
+icon = ExtResource( 1646 )
+preview = ExtResource( 1645 )
 
 [node name="CaveGroup" type="Node" parent="PlaceableItems"]
 script = ExtResource( 25 )

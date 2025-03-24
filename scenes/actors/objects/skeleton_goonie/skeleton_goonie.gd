@@ -8,6 +8,7 @@ onready var bones_particles = $Sprite/BonesParticles
 onready var head_particle = $Sprite/Head
 onready var wall_check_A = $WinglessBody/WallCheckA
 onready var wall_check_B = $WinglessBody/WallCheckB
+onready var ground_check = $GroundCheck
 onready var attack_area = $WinglessBody/AttackArea
 onready var bomb_body = $StaticBody2D/BombBody
 onready var bomb_area_check = $StaticBody2D/BombBody/DropCheck
@@ -240,7 +241,7 @@ func goonie_physics_process(delta: float):
 			if (is_instance_valid(bomb_body) and bomb_area_check.get_overlapping_bodies().size() > 0):
 				drop_bomb()
 	else:
-		
+		Ice.check_is_sliding(self,ground_check)
 		if not hit:
 			for hit_body in stomp_area_wingless.get_overlapping_bodies():
 				if hit_body.name.begins_with("Character"):
@@ -278,7 +279,7 @@ func goonie_physics_process(delta: float):
 		wall_check_B.cast_to = wall_check_A.cast_to
 		sprite.flip_h = (wingless_dir > 0)
 		sprite.global_position = wingless_body.global_position
-		velocity.x = wingless_spd * wingless_dir
+		velocity.x = wingless_spd * wingless_dir / (int(is_sliding)+1)
 		velocity = wingless_body.move_and_slide_with_snap(velocity, wingless_snap, Vector2.UP, true, 4, deg2rad(46))
 	
 	if (dropped_bomb and is_instance_valid(bomb_body)):

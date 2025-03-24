@@ -14,6 +14,7 @@ onready var hit_sound : AudioStreamPlayer = $CheepCheep/Hit
 onready var anim_player : AnimationPlayer = $CheepCheep/AnimationPlayer
 onready var bottom_pos : Node2D = $CheepCheep/BottomPos
 onready var water_detector : Node2D = $CheepCheep/WaterDetector
+onready var ground_check: RayCast2D = $CheepCheep/GroundCheck
 
 onready var visibility_enabler : VisibilityEnabler2D = $VisibilityEnabler2D
 var dead := false
@@ -28,6 +29,7 @@ var boost_timer := 0.0
 var hide_timer := 0.0
 var delete_timer := 0.0
 var speed := 30
+var speed_buildup := 0
 var idle_swim_speed := 25
 var swim_speed := 50
 var shell_max_speed := 560
@@ -138,7 +140,7 @@ func kill(hit_pos : Vector2) -> void:
 				velocity = Vector2(sign(normal.x) * 225, (-225 if water_detector.get_overlapping_areas().size() <= 0 else sign(normal.y) * 50))
 				position.y -= 2
 				snap = Vector2(0, 0)
-				time_until_die = 0.5
+				time_until_die = 0.5 + int(is_sliding)
 			else:
 				hit_sound.play()
 				var normal := kinematic_body.global_position - hit_pos
@@ -160,6 +162,7 @@ func _physics_process(delta : float) -> void:
 	time_alive += delta
 	
 	if mode != 1 and enabled and loaded:
+		Ice.check_is_sliding(self,ground_check)
 		var is_in_platform := false
 		var platform_collision_enabled := false
 		for platform_body in platform_detector.get_overlapping_areas():
@@ -203,10 +206,18 @@ func physics_process_normal(delta: float, is_in_platform: bool) -> void:
 	
 		if kinematic_body.is_on_floor():
 			# the only enemy code that uses randomness
+			var previous_direction = int(facing_direction)
 			facing_direction = randi() % 2
 			if facing_direction == 0:
 				facing_direction = -1
-			velocity.x = -((randi() % 25) + 50) * facing_direction
+			if (previous_direction == facing_direction):
+				speed_buildup += 1
+			else:
+				speed_buildup = 0
+			if (is_sliding and speed_buildup != 0):
+				velocity.x += sign(velocity.x)*pow(speed_buildup,3)
+			else:
+				velocity.x = -((randi() % 25) + 50) * facing_direction/(int(is_sliding)+1)
 			velocity.y = -((randi() % 50) + 200)
 		
 		# Ground collision
@@ -285,4 +296,13 @@ func physics_process_hit(delta: float, is_in_platform: bool) -> void:
 		velocity.y += gravity * gravity_scale
 		velocity.y += gravity * gravity_scale
 		#kinematic_body.get_floor_normal()
+		
+		if (is_sliding):
+			if (abs(velocity.x) < 225 and abs(velocity.x) > 150):
+				velocity.x -= sign(velocity.x)*2
+			elif (abs(velocity.x) > 100):
+				velocity.x -= sign(velocity.x)*3
+			elif (abs(velocity.x) > 50):
+				velocity.x -= sign(velocity.x)*4
+		
 		velocity = kinematic_body.move_and_slide_with_snap(velocity, snap, Vector2.UP, true, 4, deg2rad(46))

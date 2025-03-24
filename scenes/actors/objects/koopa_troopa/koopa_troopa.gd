@@ -36,8 +36,11 @@ var original_position
 
 var delete_timer = 0.0
 var speed = 30
+var max_speed := 127
 var shell_max_speed = 560
 var accel = 15
+var last_facing_direction: int
+var speed_buildup: float = -0.3
 
 var facing_direction := -1
 var time_alive = 0.0
@@ -197,9 +200,11 @@ func _physics_process(delta):
 		if !hit:
 			# Run the appropriate physics process function
 			if is_instance_valid(shell):
+				Ice.check_is_sliding(shell,shell_grounded_check)
 				visibility_enabler.global_position = shell.global_position
 				physics_process_shell(delta, level_bounds)
 			elif body_exists():
+				Ice.check_is_sliding(self,right_check)
 				visibility_enabler.global_position = body.global_position
 				physics_process_koopa(delta, level_bounds)
 		elif !is_instance_valid(shell):
@@ -279,10 +284,16 @@ func physics_process_shell(delta, _level_bounds):
 	if shell_grounded_check.is_colliding():
 		var check = shell_grounded_check
 		if check.get_collision_normal().y == -1:
-			velocity.x = lerp(velocity.x, 0, fps_util.PHYSICS_DELTA / 2.5)
+			if (is_sliding):
+				velocity.x = lerp(velocity.x, 0, fps_util.PHYSICS_DELTA / 3.5)
+			else:
+				velocity.x = lerp(velocity.x, 0, fps_util.PHYSICS_DELTA / 2.5)
 		else:
 			var normal = sign(check.get_collision_normal().x)
-			velocity.x = lerp(velocity.x, 275 * normal, fps_util.PHYSICS_DELTA)
+			if (is_sliding):
+				velocity.x = lerp(velocity.x, 275 * normal, fps_util.PHYSICS_DELTA / 1.5)
+			else:
+				velocity.x = lerp(velocity.x, 275 * normal, fps_util.PHYSICS_DELTA)
 	
 	# Sprite handling & physics
 	shell_sprite.speed_scale = abs(velocity.x) / shell_max_speed
@@ -336,13 +347,28 @@ func physics_process_koopa(delta, level_bounds):
 		if !winged:
 			# Walk and be affected by gravity
 			sprite.animation = "walking"
-			velocity.x = lerp(velocity.x, facing_direction * speed, fps_util.PHYSICS_DELTA * accel)
+			if (!is_sliding):
+				velocity.x = lerp(velocity.x, facing_direction * speed, fps_util.PHYSICS_DELTA * accel)
+			else:
+				velocity.x = lerp(velocity.x, facing_direction * speed, fps_util.PHYSICS_DELTA)
 			if water_detector.get_overlapping_areas().size() > 0:
 				gravity_scale = 0.3
 			else:
 				gravity_scale = 1
 			velocity.y += gravity * gravity_scale
 			velocity.y += gravity * gravity_scale
+			
+			if (facing_direction == last_facing_direction and is_sliding):
+				speed_buildup += .005
+			else:
+				speed_buildup = -0.3
+			
+			if (is_sliding):
+				velocity.x += speed_buildup*facing_direction
+			
+			velocity.x = clamp(velocity.x,-max_speed,max_speed)
+			
+			last_facing_direction = int(facing_direction)
 		else:
 			# Paratroopas go up and down very slightly
 			velocity = Vector2(0, 0)

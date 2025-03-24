@@ -10,6 +10,7 @@ onready var pathfollow = $Path2D/PathFollow2D
 
 onready var physicsbody = $KinematicBody2D
 onready var rect = $Path2D/PathFollow2D/ReferenceRect
+onready var ground_check = $GroundCheck
 
 export (Array, String) var expression_map
 export (Array, String) var action_map
@@ -34,9 +35,10 @@ var velocity := Vector2.ZERO
 var snap := Vector2(0, 12)
 var last_position: float = 0
 var working_speed: float = 0
+var speed_buildup: float = 0
+var facing_direction: float = -1
 
 var dialogue_trigger: Node
-
 
 func _set_properties():
 	savable_properties = ["curve", "custom_path", "move_type", "walk_speed", "physics_enabled", "idle_expression", "idle_action", "speaking_expression", "speaking_action", "path_reference", "tag_link", "required_shines"]
@@ -171,9 +173,33 @@ func _physics_process(delta):
 		path.curve = curve
 	
 	if mode != 1:
+		Ice.check_is_sliding(self,ground_check)
+		
 		#x component of velocity
 		if walk_speed != 0:
-			velocity.x = (pathfollow.global_position.x - physicsbody.global_position.x) / delta
+			
+			if (is_sliding):
+				
+				if (facing_direction != sign(velocity.x) and velocity.x != 0):
+					speed_buildup = 0
+				else:
+					speed_buildup += 0.005
+				
+				if (velocity.x != 0):
+					facing_direction = sign(velocity.x)
+				
+				var speed_factor: float
+				if (walk_speed < 1):
+					speed_factor = walk_speed
+				elif(walk_speed == 1):
+					speed_factor = 2
+				else:
+					speed_factor = lerp(walk_speed,pow(walk_speed,2),walk_speed)
+				
+				velocity.x = lerp(0, pathfollow.global_position.x - physicsbody.global_position.x,
+					speed_buildup * speed_factor)
+			else:
+				velocity.x = (pathfollow.global_position.x - physicsbody.global_position.x) / delta
 		
 		#y component of velocity
 		if physics_enabled:
@@ -182,8 +208,10 @@ func _physics_process(delta):
 		else:
 			physicsbody.global_position.y = pathfollow.global_position.y
 		
+		
 		#apply velocity
 		velocity = physicsbody.move_and_slide_with_snap(velocity, snap, Vector2.UP, true, 4, deg2rad(46))
+		
 		
 		#update action animations to have the NPC run
 		if walk_speed != 0:
