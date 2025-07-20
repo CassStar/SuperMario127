@@ -1,0 +1,45 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://assets/misc/editor_theme.tres" type="Theme" id=1]
+[ext_resource path="res://scenes/editor/base_button_sound.gd" type="Script" id=2]
+[ext_resource path="res://classes/cutscene/CutscenePlayer.gd" type="Script" id=3]
+[ext_resource path="res://scenes/oldeditor/sounds/hover.wav" type="AudioStream" id=4]
+[ext_resource path="res://scenes/oldeditor/sounds/click2.wav" type="AudioStream" id=5]
+
+[node name="CutscenePlayer" type="VideoPlayer"]
+margin_right = 768.0
+margin_bottom = 432.0
+script = ExtResource( 3 )
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+margin_right = 752.0
+margin_bottom = 416.0
+alignment = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+margin_left = 716.0
+margin_right = 752.0
+margin_bottom = 416.0
+alignment = 2
+
+[node name="Button" type="Button" parent="HBoxContainer/VBoxContainer"]
+unique_name_in_owner = true
+margin_top = 397.0
+margin_right = 36.0
+margin_bottom = 416.0
+theme = ExtResource( 1 )
+shortcut_in_tooltip = false
+text = "SKIP"
+script = ExtResource( 2 )
+
+[node name="HoverSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource( 4 )
+volume_db = -10.0
+bus = "Sounds"
+
+[node name="ClickSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource( 5 )
+volume_db = -10.0
+bus = "Sounds"
