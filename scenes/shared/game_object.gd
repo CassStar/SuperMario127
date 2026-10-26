@@ -153,10 +153,13 @@ func _update_modulate_editor(delta: float) -> void:
 		
 	if not visibility:
 		modulate.a = lerp(modulate.a, EDITOR_INVISIBLE_ALPHA, delta * 16)
+		disabled_icon.modulate.a = lerp(modulate.a, EDITOR_INVISIBLE_ALPHA, delta * 16)
 	else:
 		modulate.a = lerp(modulate.a, 1, delta * 16)
-		
-	disabled_icon.visible = (!enabled and is_in_editor())
+		disabled_icon.modulate.a = lerp(modulate.a, 1, delta * 16)
+	
+	var layer_visible: bool = level_layer_ref.get_ref().layer_data.layer_metadata.layer_visible
+	disabled_icon.visible = (!enabled and is_in_editor() and layer_visible)
 	if disabled_icon.visible: disabled_icon.rect_position = Vector2((global_transform.xform(editor_rect)).size.x + (global_transform.xform(editor_rect)).position.x, (global_transform.xform(editor_rect)).position.y) - disabled_icon.texture.get_size()/2
 
 
