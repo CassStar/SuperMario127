@@ -66,6 +66,7 @@ func _process(_delta):
 				platforms.append(instance)
 				add_child(instance)
 				instance.set_parts(parts)
+				instance.set_colors(last_colors)
 				
 				# Disable the collision if is_enabled_and_on_ground() = false
 				instance.collision_shape.disabled = !is_enabled_and_on_ground()
@@ -76,7 +77,7 @@ func _process(_delta):
 			for _i in range(delta_count):
 				remove_child(platforms.pop_back())
 				
-		delta_angle = (PI * 2) / platform_count
+		delta_angle = (PI * 2) / platform_count if platform_count > 0 else PI * 4
 		
 	if radius != last_radius:
 		update() #redraw points
@@ -112,7 +113,7 @@ func _draw():
 func _ready():
 	var scene := load("res://scenes/actors/objects/touch_lift_platform/touch_lift_platform.tscn")
 	
-	delta_angle = (PI * 2) / platform_count
+	delta_angle = (PI * 2) / platform_count if platform_count > 0 else PI * 4
 	for _i in range(platform_count):
 		var instance = scene.instance()
 		instance.set_sync_to_physics(true)
