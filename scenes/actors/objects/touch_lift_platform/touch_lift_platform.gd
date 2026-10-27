@@ -37,6 +37,10 @@ func set_parts(parts: int):
 	platform_area_collision_shape.shape.extents.x = (left_width + (part_width * parts) + right_width) / 2
 	collision_shape.shape.extents.x = (left_width + (part_width * parts) + right_width) / 2
 
+func set_colors(colors: PoolColorArray)-> void:
+	
+	recolor_sprite.self_modulate = colors[0]
+	sprite.self_modulate = colors[1]
 
 func _ready():
 	last_position = global_position

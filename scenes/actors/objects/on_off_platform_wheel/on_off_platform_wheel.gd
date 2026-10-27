@@ -74,7 +74,7 @@ func _process(_delta):
 			for _i in range(delta_count):
 				remove_child(platforms.pop_back())
 				
-		delta_angle = (PI * 2) / platform_count
+		delta_angle = (PI * 2) / platform_count if platform_count > 0 else PI * 4
 		
 	if radius != last_radius:
 		update() #redraw points
@@ -102,7 +102,7 @@ func _draw():
 func _ready():
 	var scene := load("res://scenes/actors/objects/on_off_touch_lift_platform/on_off_touch_lift_platform.tscn")
 
-	delta_angle = (PI * 2) / platform_count
+	delta_angle = (PI * 2) / platform_count if platform_count > 0 else PI * 4
 	for _i in range(platform_count):
 		var instance = scene.instance()
 		platforms.append(instance)
