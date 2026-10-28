@@ -177,7 +177,7 @@ func _on_tween_all_completed() -> void:
 
 func fire_cannon() -> void:
 	#return the player control and such to normal 
-	stored_character.invulnerable = false
+	stored_character.force_invulnerable = false
 	stored_character.controllable = true
 	stored_character.movable = true
 	stored_character.modulate.a = 1
