@@ -70,6 +70,7 @@ func start_pipe_ground_pound_animation(character : Character) -> void:
 
 	character.sprite.animation = "groundPound" + ("Right" if character.facing_direction == 1 else "Left")
 	character.sprite.playing = true
+	character.force_invulnerable = true
 
 	var slide_length : float = slide_to_center_fast_length
 
@@ -97,6 +98,7 @@ func start_pipe_enter_animation(character : Character) -> void:
 	character.set_inter_player_collision(false)
 	character.sprite.animation = "pipe" + ("Right" if character.facing_direction == 1 else "Left")
 	character.sprite.playing = true
+	character.force_invulnerable = true
 
 
 	var slide_length : float = slide_to_center_length
@@ -164,6 +166,7 @@ func pipe_exit_anim_finished(character : Character):
 	# undo collision changes 
 	character.set_collision_mask_bit(1, true)
 	character.set_inter_player_collision(true) 
+	character.force_invulnerable = false
 	
 	yield(get_tree(), "idle_frame")
 	call_deferred("reset_sprite", character)

@@ -53,6 +53,7 @@ func start_entrance_animation(character: Character) -> void:
 	character.toggle_movement(false)
 	character.velocity = Vector2.ZERO
 	character.sprite.rotation = 0
+	character.force_invulnerable = true
 	
 	connect("entrance_completed", self, "begin_warp", [character], CONNECT_ONESHOT)
 
@@ -75,6 +76,7 @@ func finish_exit_animation(character: Character) -> void:
 	# updated yet on start_exit_animation sooo shrug
 	character.layer = level_layer_ref
 	character.update_layer_info()
+	character.force_invulnerable = false
 
 	if not character.dead:
 		var is_in_cutscene: bool = false
